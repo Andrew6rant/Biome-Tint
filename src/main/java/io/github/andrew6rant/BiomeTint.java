@@ -3,11 +3,14 @@ package io.github.andrew6rant;
 import io.github.andrew6rant.BiomeTintConfig;
 
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.minecraft.block.Blocks;
 import net.minecraft.client.color.world.BiomeColors;
 import net.minecraft.client.color.world.FoliageColors;
 import net.minecraft.client.color.world.GrassColors;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
@@ -20,11 +23,20 @@ public class BiomeTint implements ClientModInitializer {
 
 	@Override
 	public void onInitializeClient() {
+		for(String blockId : CONFIG.blockIds()) {
+			try {
+				BlockRenderLayerMap.INSTANCE.putBlock(Registries.BLOCK.get(new Identifier(blockId.substring(0, blockId.indexOf('#')))), RenderLayer.getCutoutMipped());
+			} catch (Exception e) {
+				LOGGER.error("BIOME-TINT: "+blockId+ " is malformed!");
+				LOGGER.error("Each config value must be in the format: namespace:block#hexcolor");
+			}
+		}
 		ServerLifecycleEvents.SERVER_STARTED.register(server -> provideColors());
 		ServerLifecycleEvents.END_DATA_PACK_RELOAD.register((server, resourceManager, success) -> provideColors());
 	}
 
 	public void provideColors() {
+		//BlockRenderLayerMap.INSTANCE.putBlock(Blocks.MOSSY_COBBLESTONE, RenderLayer.getCutoutMipped());
 		for(String blockId : CONFIG.blockIds()) {
 			try {
 				Identifier id = new Identifier(blockId.substring(0, blockId.indexOf('#')));
@@ -74,6 +86,8 @@ public class BiomeTint implements ClientModInitializer {
 							LOGGER.error("BIOME-TINT: "+blockId+ " is malformed!");
 							LOGGER.error("the color part of each config value must be either \"grass\", or a hex color (RRGGBB)");
 						}
+					// yes, I know the block's renderLayer was already set on init, but this just catches changes to the config as to not require a restart.
+					BlockRenderLayerMap.INSTANCE.putBlock(Registries.BLOCK.get(new Identifier(blockId.substring(0, blockId.indexOf('#')))), RenderLayer.getCutoutMipped());
 				}
 			} catch (Exception e) {
 				LOGGER.error("BIOME-TINT: "+blockId+ " is malformed!");
@@ -82,3 +96,6 @@ public class BiomeTint implements ClientModInitializer {
 		}
 	}
 }
+
+// 8425a3
+// 2572a3
