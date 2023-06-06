@@ -6,6 +6,7 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.client.color.world.BiomeColors;
+import net.minecraft.client.color.world.FoliageColors;
 import net.minecraft.client.color.world.GrassColors;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
@@ -28,21 +29,51 @@ public class BiomeTint implements ClientModInitializer {
 			try {
 				Identifier id = new Identifier(blockId.substring(0, blockId.indexOf('#')));
 				String color = blockId.substring(blockId.indexOf('#'));
-				if (color.equals("#grass")) {
-					ColorProviderRegistry.BLOCK.register((state, world, pos, tintIndex) -> {
-						return world != null && pos != null ? BiomeColors.getGrassColor(world, pos) : GrassColors.getDefaultColor();
-					}, Registries.BLOCK.get(id));
-					ColorProviderRegistry.ITEM.register((stack, tintIndex) -> {
-						return GrassColors.getColor(0.5, 1.0); // default grass color used in Vanilla
-					}, Registries.BLOCK.get(id));
-				} else {
-					try {
-						ColorProviderRegistry.BLOCK.register((state, world, pos, tintIndex) -> Integer.decode(color), Registries.BLOCK.get(id));
-						ColorProviderRegistry.ITEM.register((stack, tintIndex) -> Integer.decode(color), Registries.BLOCK.get(id));
-					} catch (Exception e) {
-						LOGGER.error("BIOME-TINT: "+blockId+ " is malformed!");
-						LOGGER.error("the color part of each config value must be either \"grass\", or a hex color (RRGGBB)");
-					}
+				switch(color) {
+					case "#grass":
+						ColorProviderRegistry.BLOCK.register((state, world, pos, tintIndex) -> {
+							return world != null && pos != null ? BiomeColors.getGrassColor(world, pos) : GrassColors.getDefaultColor();
+						}, Registries.BLOCK.get(id));
+						ColorProviderRegistry.ITEM.register((stack, tintIndex) -> {
+							return GrassColors.getColor(0.5, 1.0); // default grass color used in Vanilla
+						}, Registries.BLOCK.get(id));
+						break;
+					case "#foliage":
+						ColorProviderRegistry.BLOCK.register((state, world, pos, tintIndex) -> {
+							return world != null && pos != null ? BiomeColors.getFoliageColor(world, pos) : FoliageColors.getDefaultColor();
+						}, Registries.BLOCK.get(id));
+						ColorProviderRegistry.ITEM.register((stack, tintIndex) -> {
+							return FoliageColors.getDefaultColor(); // default foliage color used in Vanilla (actual block colors in Vanila are hardcoded)
+						}, Registries.BLOCK.get(id));
+						break;
+					case "#water":
+						ColorProviderRegistry.BLOCK.register((state, world, pos, tintIndex) -> {
+							return world != null && pos != null ? BiomeColors.getWaterColor(world, pos) : -1;
+						}, Registries.BLOCK.get(id));
+						//ColorProviderRegistry.ITEM.register((stack, tintIndex) -> { 	// I have to figure out what to do with the item
+						//	return FoliageColors.getDefaultColor();					  	// because Vanilla has no water item tint at all
+						//}, Registries.BLOCK.get(id));
+						break;
+					case "#foliage_spruce":
+						ColorProviderRegistry.BLOCK.register((state, world, pos, tintIndex) -> FoliageColors.getSpruceColor(), Registries.BLOCK.get(id));
+						ColorProviderRegistry.ITEM.register((stack, tintIndex) -> FoliageColors.getSpruceColor(), Registries.BLOCK.get(id));
+						break;
+					case "#foliage_birch":
+						ColorProviderRegistry.BLOCK.register((state, world, pos, tintIndex) -> FoliageColors.getBirchColor(), Registries.BLOCK.get(id));
+						ColorProviderRegistry.ITEM.register((stack, tintIndex) -> FoliageColors.getBirchColor(), Registries.BLOCK.get(id));
+						break;
+					case "#foliage_mangrove":
+						ColorProviderRegistry.BLOCK.register((state, world, pos, tintIndex) -> FoliageColors.getMangroveColor(), Registries.BLOCK.get(id));
+						ColorProviderRegistry.ITEM.register((stack, tintIndex) -> FoliageColors.getMangroveColor(), Registries.BLOCK.get(id));
+						break;
+					default:
+						try {
+							ColorProviderRegistry.BLOCK.register((state, world, pos, tintIndex) -> Integer.decode(color), Registries.BLOCK.get(id));
+							ColorProviderRegistry.ITEM.register((stack, tintIndex) -> Integer.decode(color), Registries.BLOCK.get(id));
+						} catch (Exception e) {
+							LOGGER.error("BIOME-TINT: "+blockId+ " is malformed!");
+							LOGGER.error("the color part of each config value must be either \"grass\", or a hex color (RRGGBB)");
+						}
 				}
 			} catch (Exception e) {
 				LOGGER.error("BIOME-TINT: "+blockId+ " is malformed!");

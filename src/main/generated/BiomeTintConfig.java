@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
-public class BiomeTintConfig extends ConfigWrapper<BiomeTintConfigModel> {
+public class BiomeTintConfig extends ConfigWrapper<io.github.andrew6rant.BiomeTintConfigModel> {
 
     public final Keys keys = new Keys();
 
