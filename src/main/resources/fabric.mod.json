@@ -1,0 +1,34 @@
+{
+	"schemaVersion": 1,
+	"id": "biome-tint",
+	"version": "${version}",
+	"name": "Biome Tint",
+	"description": "This is an example description! Tell everyone what your mod is about!",
+	"authors": [
+		"Me!"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "MIT",
+	"icon": "assets/biome-tint/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"client": [
+			"io.github.andrew6rant.BiomeTint"
+		]
+	},
+	"mixins": [
+		"biome-tint.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.14.21",
+		"minecraft": "~1.19.4",
+		"java": ">=17",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}
